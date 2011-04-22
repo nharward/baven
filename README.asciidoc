@@ -1,7 +1,6 @@
 Baven
 =====
 Nathaniel Harward <nharward@gmail.com>
-:Author Initials: NDH
 
 
 What is Baven exactly?
@@ -30,6 +29,28 @@ Please see the +bin/samples/+ directory for scripts that use Baven to
 demonstrate some of the plugins.
 
 
+What dependencies does it have?
+-------------------------------
+While very powerful, BASH is not quite as rich as say Java, C++, Ruby...  In
+order to work with networked repositories, do checksumming, etc. some other
+programs are used that are not packaged (nor should be) with Baven.  Here are
+some of the major dependencies, though on most Linux systems this shouldn't be
+an issue:
+* +md5sum+
+* +sha1sum+
+* One of the following, they are checked for in this order:
+** +curl+
+** +wget+
+** +w3m+
+** +links+
+** +elinks+
+** +lynx+
+
+There are other more basic dependencies such as +mkdir+, +test+, +rm+...
+But there aren't many and if those are missing I'm not sure how any real
+script would work anyway.
+
+
 Maven has network-aware repositories, does Baven?
 -------------------------------------------------
 Yes, Baven has support for any number of repositories, as long as their
@@ -37,9 +58,9 @@ definition can fit inside a BASH array.  When first sourced, Baven will create a
 configuration file and repository location in +$\{HOME}/.baven+.  You can
 add/remove repositories to your liking once this is done.
 
-Note that Baven repositories are modeled after Maven repositories, the
-difference being that +baven.bash+ doesn't yet support MD5/SHA1 checking.  But
-that's coming.
+Note that Baven repositories are modeled after Maven repositories.  Also, both
+MD5 and SHA1 checksums must match otherwise the plugin will not be loaded and
+the next repository will be checked.
 
 Repositories are accessed using other tools like curl, wget, lynx, etc.  Curl is
 first on the list, so whatever URL schemes are supported by the tool in use on

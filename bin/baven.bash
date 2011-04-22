@@ -21,6 +21,14 @@ function bvn.init() {
                                   bvn.exec_or_fail echo "declare -a baven_repositories=(\"https://github.com/nharward/baven/raw/master/repository\")" > "${BAVEN_CONF}"
                                 }
     test -d "${BAVEN_REPO}" || bvn.exec_or_fail mkdir -p "${BAVEN_REPO}"
+    for checksum_prog in md5sum sha1sum
+    do
+        if ! test -x $(which "${checksum_prog}"); then
+            echo "bvn.err Unable to find ${checksum_prog}, please check your PATH"
+            echo "exit 2"
+            return 1
+        fi
+    done
     echo "eval source '${BAVEN_CONF}'"
 }
 readonly -f bvn.init
@@ -81,6 +89,17 @@ function bvn.get_url_content() {
 }
 readonly -f bvn.get_url_content
 
+# Constructs the repository path for a plugin based on package/name/version
+# Emitted return value to stdout:
+#   local path from repository root to the plugin file itself
+function bvn.private_get_plugin_path() {
+    local package="${1:?Plugin package must be specified}"
+    local name="${2:?Plugin name must be specified}"
+    local version="${3:?Plugin version must be specified}"
+    echo "${package//.//}/${name}/${name}-${version}.bash"
+}
+readonly -f bvn.private_get_plugin_path
+
 # Finds a module either locally or, if not found, from network repositories (and then caches locally)
 # Arguments:
 #   1. plugin package [required]
@@ -92,7 +111,7 @@ function bvn.private_fetch_and_cache_plugin() {
     local package="${1:?Plugin package must be specified}"
     local name="${2:?Plugin name must be specified}"
     local version="${3:?Plugin version must be specified}"
-    local plugin_path="${package//.//}/${name}/${name}-${version}.bash"
+    local plugin_path=$(bvn.private_get_plugin_path "$@")
     local cached_path="${BAVEN_REPO}/${plugin_path}"
     if test -f "${cached_path}"; then
         echo "${cached_path}"
@@ -104,19 +123,32 @@ function bvn.private_fetch_and_cache_plugin() {
         for bvn_remote_repo in "${baven_repositories[@]}"
         do
             local url="${bvn_remote_repo}/${plugin_path}"
-            bvn.get_url_content "${url}" > "${cached_path}.tmp"
-            if test "$?" = 0; then
-                mv "${cached_path}.tmp" "${cached_path}"
+            bvn.get_url_content "${url}" > "${cached_path}"
+            bvn.get_url_content "${url}.md5" > "${cached_path}.md5"
+            bvn.get_url_content "${url}.sha1" > "${cached_path}.sha1"
+            if bvn.verify_plugin "$@"; then
                 echo "${cached_path}"
                 return 0
             else
-                rm -f "${cached_path}.tmp"
+                bvn.err "MD5/SHA1 checksums failed for plugin ${package}:${name}:${version} from repository[${bvn_remote_repo}], skipping"
+                rm -f "${cached_path}" "${cached_path}.md5" "${cached_path}.sha1"
             fi
         done
         return 1
     fi
 }
 readonly -f bvn.private_fetch_and_cache_plugin
+
+# Verifies whether MD5/SHA1 checksums match for a given plugin
+# Return value:
+#   0 if plugin checksums match
+#   non-zero otherwise
+function bvn.verify_plugin() {
+    local plugin_path=$(bvn.private_get_plugin_path "$@")
+    cd "${BAVEN_REPO}/$(dirname "${plugin_path}")"
+    md5sum --status -c $(basename "${plugin_path}").md5 2>/dev/null >/dev/null && sha1sum --status -c $(basename "${plugin_path}").sha1 2>/dev/null >/dev/null
+}
+readonly -f bvn.verify_plugin
 
 # Loads a plugin, checking local cache first.  *Must be invoked* in the following way:
 #   `bvn.load_plugin plugin.package.name plugin.name plugin.version`

@@ -36,6 +36,7 @@ order to work with networked repositories, do checksumming, etc. some other
 programs are used that are not packaged (nor should be) with Baven.  Here are
 some of the major dependencies, though on most Linux systems this shouldn't be
 an issue:
+
 * +md5sum+
 * +sha1sum+
 * One of the following, they are checked for in this order:

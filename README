@@ -1,6 +1,0 @@
-Baven is intended to be a modular Maven-like utility for use in BASH scripts.
-
-After growing tired of writing the same thing over and over and some prodding
-by collegues at what a nerd I am, I decided to go for it.  If you have a
-module you'd like to add, just let me (or whoever the project maintainer is)
-know and after a quick code review it will very likely be accepted.

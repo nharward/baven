@@ -18,7 +18,7 @@ declare -A baven_plugins
 function bvn.init() {
     test -d "${BAVEN_LOCAL}" || bvn.exec_or_fail mkdir -p "${BAVEN_LOCAL}"
     test -f "${BAVEN_CONF}"  || { bvn.exec_or_fail touch "${BAVEN_CONF}"
-                                  bvn.exec_or_fail echo "declare -a repositories=(\"https://github.com/nharward/baven/raw/master/repository\")" > "${BAVEN_CONF}"
+                                  bvn.exec_or_fail echo "declare -a baven_repositories=(\n    \"https://github.com/nharward/baven/raw/master/repository\"\n)" > "${BAVEN_CONF}"
                                 }
     test -d "${BAVEN_REPO}" || bvn.exec_or_fail mkdir -p "${BAVEN_REPO}"
     echo "eval source '${BAVEN_CONF}'"
@@ -45,7 +45,6 @@ readonly -f bvn.err
 
 # Runs all arguments as a command, failing the script if the command fails
 function bvn.exec_or_fail() {
-    bvn.debug "Running command '$@'"
     "$@"
     if test "$?" != 0; then
         bvn.err "Execution of [$@] failed"
@@ -66,8 +65,8 @@ readonly -f bvn.exec_or_fail
 function bvn.get_url_content() {
     local url="${1:?URL must be specified}"
     local fetch_cmd=""
-    test -z "${fetch_cmd}" && test -x "$(which "wget")"   && fetch_cmd="$(which "wget") -q -O -"
     test -z "${fetch_cmd}" && test -x "$(which "curl")"   && fetch_cmd="$(which "curl") -s"
+    test -z "${fetch_cmd}" && test -x "$(which "wget")"   && fetch_cmd="$(which "wget") -q -O -"
     test -z "${fetch_cmd}" && test -x "$(which "w3m")"    && fetch_cmd="$(which "w3m") -dump_source"
     test -z "${fetch_cmd}" && test -x "$(which "links")"  && fetch_cmd="$(which "links") -source"
     test -z "${fetch_cmd}" && test -x "$(which "elinks")" && fetch_cmd="$(which "elinks") -source 1"
@@ -102,7 +101,7 @@ function bvn.private_fetch_and_cache_plugin() {
         if test \! -d "$(dirname ${cached_path})"; then
             mkdir -p "$(dirname ${cached_path})" || { bvn.err "Unable to create repository structure for plugin ${cached_path}" && return 1 ; }
         fi
-        for bvn_remote_repo in "${repositories[@]}"
+        for bvn_remote_repo in "${baven_repositories[@]}"
         do
             local url="${bvn_remote_repo}/${plugin_path}"
             bvn.get_url_content "${url}" > "${cached_path}.tmp"

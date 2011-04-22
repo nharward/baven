@@ -18,7 +18,7 @@ declare -A baven_plugins
 function bvn.init() {
     test -d "${BAVEN_LOCAL}" || bvn.exec_or_fail mkdir -p "${BAVEN_LOCAL}"
     test -f "${BAVEN_CONF}"  || { bvn.exec_or_fail touch "${BAVEN_CONF}"
-                                  bvn.exec_or_fail echo "declare -a baven_repositories=(\n    \"https://github.com/nharward/baven/raw/master/repository\"\n)" > "${BAVEN_CONF}"
+                                  bvn.exec_or_fail echo "declare -a baven_repositories=(\"https://github.com/nharward/baven/raw/master/repository\")" > "${BAVEN_CONF}"
                                 }
     test -d "${BAVEN_REPO}" || bvn.exec_or_fail mkdir -p "${BAVEN_REPO}"
     echo "eval source '${BAVEN_CONF}'"

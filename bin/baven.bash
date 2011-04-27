@@ -11,8 +11,8 @@ BAVEN_REPO="${BAVEN_REPO:-${BAVEN_LOCAL}/repository}"
 BAVEN_DEBUG="${BAVEN_DEBUG:-}"
 BAVEN_VERBOSE="${BAVEN_VERBOSE:-}"
 
-# Saves a list of loaded modules
-declare -A baven_plugins
+# An array of loaded plugins
+declare -a baven_plugins
 
 # Initializes Baven to have a sane state if starting from scratch
 function bvn.init() {
@@ -162,7 +162,7 @@ readonly -f bvn.verify_plugin
 function bvn.load_plugin() {
     bvn.is_plugin_loaded "$@" && return 0
     local plugin_local_path=$(bvn.private_fetch_and_cache_plugin "$@")
-    test -f "${plugin_local_path}" && echo "eval source '${plugin_local_path}' && baven_plugins[\"${1}:${2}\"]=\"${3}\"" && return 0
+    test -f "${plugin_local_path}" && echo "eval source '${plugin_local_path}' && baven_plugins[\${#baven_plugins[@]}]=\"${1}:${2}:${3}\"" && return 0
     echo "bvn.err Plugin[${1}:${2}:${3}] not found" && return 1
 }
 readonly -f bvn.load_plugin
@@ -176,10 +176,15 @@ function bvn.is_plugin_loaded() {
     local package="${1:?Plugin package must be specified}"
     local name="${2:?Plugin name must be specified}"
     local version="${3:?Plugin version must be specified}"
-    test "${baven_plugins[${package}:${name}]}" = "${version}" && return 0
+    let local pos=0
+    while test "${pos}" -lt "${#baven_plugins[@]}";
+    do
+        test "${baven_plugins[${pos}]}" = "${package}:${name}:${version}" && return 0
+        pos=$((${pos}+1))
+    done
     return 1
 }
 readonly -f bvn.is_plugin_loaded
 
 $(bvn.init)
-baven_plugins["baven:bootstrap"]="0.0.1"
+baven_plugins[0]="baven:bootstrap:1.0.0b"

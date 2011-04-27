@@ -28,67 +28,67 @@ if test -x "$(which tput)"; then
 fi
 
 # Wraps arguments in TTY "standout" mode
-function color.standout() {
+function ansi-color.standout() {
     echo "${BVN_COLOR_STNDOUT_BEGIN}$@${BVN_COLOR_STNDOUT_END}"
 }
-readonly -f color.standout
+readonly -f ansi-color.standout
 
 # Wraps arguments in TTY "underline" mode
-function color.underline() {
+function ansi-color.underline() {
     echo "${BVN_COLOR_UNDERLINE_BEGIN}$@${BVN_COLOR_UNDERLINE_END}"
 }
-readonly -f color.underline
+readonly -f ansi-color.underline
 
 # Wraps arguments in TTY "dim" mode
-function color.dim() {
+function ansi-color.dim() {
     echo "${BVN_COLOR_DIM_BEGIN}$@${BVN_COLOR_DIM_END}"
 }
-readonly -f color.dim
+readonly -f ansi-color.dim
 
 # Colorizes the arguments to a black foreground on ANSI-capable TTYs
-function color.black() {
+function ansi-color.black() {
     echo "${BVN_COLOR_BLACK_BEGIN}$@${BVN_COLOR_BLACK_END}"
 }
-readonly -f color.black
+readonly -f ansi-color.black
 
 # Colorizes the arguments to a red foreground on ANSI-capable TTYs
-function color.red() {
+function ansi-color.red() {
     echo "${BVN_COLOR_RED_BEGIN}$@${BVN_COLOR_RED_END}"
 }
-readonly -f color.red
+readonly -f ansi-color.red
 
 # Colorizes the arguments to a green foreground on ANSI-capable TTYs
-function color.green() {
+function ansi-color.green() {
     echo "${BVN_COLOR_GREEN_BEGIN}$@${BVN_COLOR_GREEN_END}"
 }
-readonly -f color.green
+readonly -f ansi-color.green
 
 # Colorizes the arguments to a yellow foreground on ANSI-capable TTYs
-function color.yellow() {
+function ansi-color.yellow() {
     echo "${BVN_COLOR_YELLOW_BEGIN}$@${BVN_COLOR_YELLOW_END}"
 }
-readonly -f color.yellow
+readonly -f ansi-color.yellow
 
 # Colorizes the arguments to a blue foreground on ANSI-capable TTYs
-function color.blue() {
+function ansi-color.blue() {
     echo "${BVN_COLOR_BLUE_BEGIN}$@${BVN_COLOR_BLUE_END}"
 }
-readonly -f color.blue
+readonly -f ansi-color.blue
 
 # Colorizes the arguments to a magenta foreground on ANSI-capable TTYs
-function color.magenta() {
+function ansi-color.magenta() {
     echo "${BVN_COLOR_MAGENTA_BEGIN}$@${BVN_COLOR_MAGENTA_END}"
 }
-readonly -f color.magenta
+readonly -f ansi-color.magenta
 
 # Colorizes the arguments to a cyan foreground on ANSI-capable TTYs
-function color.cyan() {
+function ansi-color.cyan() {
     echo "${BVN_COLOR_CYAN_BEGIN}$@${BVN_COLOR_CYAN_END}"
 }
-readonly -f color.cyan
+readonly -f ansi-color.cyan
 
 # Colorizes the arguments to a white foreground on ANSI-capable TTYs
-function color.white() {
+function ansi-color.white() {
     echo "${BVN_COLOR_WHITE_BEGIN}$@${BVN_COLOR_WHITE_END}"
 }
-readonly -f color.white
+readonly -f ansi-color.white

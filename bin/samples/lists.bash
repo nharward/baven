@@ -42,6 +42,12 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.equals 'Array[3] should be "c"' 'c' "${testarr[3]}"
     assert.equals 'Array[5] should be "d"' 'd' "${testarr[4]}"
 
+    # Remove
+    assert.equals 'Should be empty' '' "$(lists.remove '' '')"
+    assert.equals 'Should be 10:9:8:7:6:4:3:2:1' '10:9:8:7:6:4:3:2:1' "$(lists.remove '10:9:8:7:6:5:4:3:2:1' '5')"
+    assert.equals 'Should be A;B;C;D;E;F' 'A;B;C;D;E;F' "$(lists.remove 'A;B;C;D;E;F' 'Z' ';')"
+    assert.equals 'Should be Hello, world!' 'Hello, world!' "$(lists.remove 'Hello,goodbye, world!' 'goodbye' ',')"
+
     # Filter
     assert.equals 'Should be 2' '2' "$(lists.filter '1.2.3' '.' test '2' -eq)"
     assert.equals 'Should be 1.2.3.4' '1.2.3.4' "$(lists.filter '1.2.3.4.5.6.7.8.9.10' '.' test '5' -gt)"

@@ -20,7 +20,8 @@ function lists.contains() {
 readonly -f lists.contains
 
 # Appends an argument to a list, but only if the list does not already
-# contain the value
+# contain the value.  If you don't care about duplicate values, then a simple
+# assignment is probably a better choice than a function call.
 # Arguments:
 #   1. List value
 #   2. The value to append
@@ -29,6 +30,7 @@ readonly -f lists.contains
 #   the new list value
 function lists.append() {
     assert.true "lists.append <list> <value> [separator]" test "$#" -eq 2 -o "$#" -eq 3
+    if test -z "${1}"; then echo "${2}"; return 0; fi
     local list="${1}"
     local value="${2}"
     local separator="${3:-:}"
@@ -43,7 +45,8 @@ function lists.append() {
 readonly -f lists.append
 
 # Prepends an argument to a list, but only if the list does not already
-# contain the value
+# contain the value.  If you don't care about duplicate values, then a simple
+# assignment is probably a better choice than a function call.
 # Arguments:
 #   1. List value
 #   2. The value to append
@@ -52,6 +55,7 @@ readonly -f lists.append
 #   the new list value
 function lists.prepend() {
     assert.true "lists.prepend <list> <value> [separator]" test "$#" -eq 2 -o "$#" -eq 3
+    if test -z "${1}"; then echo "${2}"; return 0; fi
     local list="${1}"
     local value="${2}"
     local separator="${3:-:}"
@@ -85,6 +89,23 @@ ${list}
 __LIST__
 }
 readonly -f lists.to_array
+
+# Removes a value from a list
+# Arguments:
+#   1. List value
+#   2. Value to remove
+#   2. List separator, default is ':'
+# Emitted value to stdout:
+#   the new list with value removed
+function lists.remove() {
+    assert.true "lists.remove <list> <value to remove> [separator]" test "$#" -eq 2 -o "$#" -eq 3
+    if test -z "${1}"; then echo "${1}"; return 0; fi
+    local list="${1}"
+    local value="${2}"
+    local separator="${3:-:}"
+    lists.filter "${list}" "${separator}" test "${value}" !=
+}
+readonly -f lists.remove
 
 # Filters a list for 'good' values only
 # Arguments:
@@ -145,8 +166,6 @@ function lists.reduce() {
 readonly -f lists.reduce
 
 # TODO:
-#   lists.remove
-#   lists.filter
 #   lists.map
 #   lists.foreach
 

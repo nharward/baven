@@ -2,6 +2,8 @@
 
 all: checksums
 
+prep: checksums cleanrepo
+
 checksums: md5 sha1
 
 md5: $(patsubst %.bash,%.bash.md5,$(wildcard *.bash))

@@ -1,7 +1,7 @@
 # Tests whether a given value exists in a list
-# Arguments (all are optional):
-#   1. List value (for example $PATH), default is the empty list
-#   2. The value to test for (say /usr/bin), default is an empty value
+# Arguments:
+#   1. List value (for example $PATH)
+#   2. The value to test for (say /usr/bin)
 #   3. The list separator, default is ':'
 # Exit codes
 #   0   If the value is contained in the list
@@ -21,9 +21,9 @@ readonly -f lists.contains
 
 # Appends an argument to a list, but only if the list does not already
 # contain the value
-# Arguments (all are optional):
-#   1. List value (for example $PATH), default is the empty list
-#   2. The value to append (say /my/app/bin), default is an empty value
+# Arguments:
+#   1. List value
+#   2. The value to append
 #   3. The list separator, default is ':'
 # Emitted value to stdout:
 #   the new list value
@@ -44,9 +44,9 @@ readonly -f lists.append
 
 # Prepends an argument to a list, but only if the list does not already
 # contain the value
-# Arguments (all are optional):
-#   1. List value (for example $PATH), default is the empty list
-#   2. The value to append (say /my/app/bin), default is an empty value
+# Arguments:
+#   1. List value
+#   2. The value to append
 #   3. The list separator, default is ':'
 # Emitted value to stdout:
 #   the new list value
@@ -65,13 +65,16 @@ function lists.prepend() {
 }
 readonly -f lists.prepend
 
-# Populates an array variable with the values of a passed in list, starting at
+# Populates an array variable with the values of a passed in list starting at
 # index 0
-# Arguments (all are optional):
+# Arguments:
 #   1. List value, default is the empty list
 #   2. The name of the array variable to assign values to, does not need to
 #      be defined ahead of time and any existing values will be unset
 #   3. The list separator, default is ':'
+# Exit codes
+#   0  if the array was successfully created from the list
+#   !0 otherwise
 function lists.to_array() {
     assert.true "lists.to_array <list> <array variable name> [separator]" test "$#" -eq 2 -o "$#" -eq 3
     local list="${1}"
@@ -82,6 +85,37 @@ ${list}
 __LIST__
 }
 readonly -f lists.to_array
+
+# Filters a list for 'good' values only
+# Arguments:
+#   1. List value
+#   2. List separator
+#   3..* The function/program to do the filtering, plus any arguments for each
+#        call.  These additional arguments are passed *before* each value in
+#        list is passed in.  A list value is considered 'good' if the exit code
+#        is 0 for a value, 'bad' (and filtered out) if non-zero
+# Emitted value to stdout:
+#   the new list with 'bad' values removed
+function lists.filter() {
+    assert.true "lists.filter <list> <separator> <filter function/program and arguments...>" test "$#" -ge 3
+    if test -z "${1}"; then echo "${1}"; return 0; fi
+    local list="${1}"
+    local separator="${2}"
+    shift 2
+    local filter_command="$@"
+    function lists.filter.reducer() {
+        local accumulator="${1}"
+        local list_value="${2}"
+        if ${filter_command} "${list_value}"; then
+            test -z "${accumulator}" && echo "${list_value}" && return 0
+            echo "${accumulator}${separator}${list_value}" && return 0
+        else
+            echo "${accumulator}"
+        fi
+    }
+    lists.reduce "${list}" "${separator}" "" lists.filter.reducer
+}
+readonly -f lists.filter
 
 # The "reduce" part of map/reduce.  Reduces a list to a single value using the
 # passed in command/function.  The seed value is the starting value, it is the
@@ -114,7 +148,6 @@ readonly -f lists.reduce
 #   lists.remove
 #   lists.filter
 #   lists.map
-#   lists.reduce
 #   lists.foreach
 
 $(bvn.load_plugin baven assert 1.0.0)

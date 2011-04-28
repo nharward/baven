@@ -42,6 +42,12 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.equals 'Array[3] should be "c"' 'c' "${testarr[3]}"
     assert.equals 'Array[5] should be "d"' 'd' "${testarr[4]}"
 
+    # Filter
+    assert.equals 'Should be 2' '2' "$(lists.filter '1.2.3' '.' test '2' -eq)"
+    assert.equals 'Should be 1.2.3.4' '1.2.3.4' "$(lists.filter '1.2.3.4.5.6.7.8.9.10' '.' test '5' -gt)"
+    assert.equals 'Should be empty' '' "$(lists.filter '1;2;3' ';' /bin/false)"
+    assert.equals 'Should be 1;2;3' '1;2;3' "$(lists.filter '1;2;3' ';' /bin/true)"
+
     # Reduce
     function add()      { echo $((${1}+${2})); }
     function subtract() { echo $((${1}-${2})); }

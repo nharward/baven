@@ -41,6 +41,14 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.equals 'Array[2] should be empty' '' "${testarr[2]}"
     assert.equals 'Array[3] should be "c"' 'c' "${testarr[3]}"
     assert.equals 'Array[5] should be "d"' 'd' "${testarr[4]}"
+
+    # Reduce
+    function add()      { echo $((${1}+${2})); }
+    function subtract() { echo $((${1}-${2})); }
+    function concat()   { echo "${1}${2}"; }
+    assert.equals 'Should be 6' '6' "$(lists.reduce '1.2.3' '.' 0 add)"
+    assert.equals 'Should be -26' '-26' "$(lists.reduce '10|1|35' '|' 20 subtract)"
+    assert.equals 'Should be abcdef' 'abcdef' "$(lists.reduce 'a/b/c/d/e/f' '/' '' concat)"
 else
     bvn.err "Could not load assert plugin"
     exit 1

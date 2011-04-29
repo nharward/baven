@@ -51,6 +51,16 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.equals 'Should be A;B;C;D;E;F' 'A;B;C;D;E;F' "$(lists.remove 'A;B;C;D;E;F' 'Z' ';')"
     assert.equals 'Should be Hello, world!' 'Hello, world!' "$(lists.remove 'Hello,goodbye, world!' 'goodbye' ',')"
 
+    # Foreach
+    lists.foreach '1,2,3' ',' /bin/true
+    assert.equals 'Should have exit code 0' '0' "${?}"
+    lists.foreach '1,2,3' ',' /bin/false
+    assert.equals 'Should have exit code 1' '1' "${?}"
+    lists.foreach '1,2,3' ',' test 4 -ne
+    assert.equals 'Should have exit code 0' '0' "${?}"
+    lists.foreach '1,2,3' ',' test 2 -ne
+    assert.equals 'Should have exit code 1' '1' "${?}"
+
     # Filter
     assert.equals 'Should be 2' '2' "$(lists.filter '1.2.3' '.' test '2' -eq)"
     assert.equals 'Should be 1.2.3.4' '1.2.3.4' "$(lists.filter '1.2.3.4.5.6.7.8.9.10' '.' test '5' -gt)"
@@ -72,6 +82,26 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.equals 'Should be 6' '6' "$(lists.reduce '1.2.3' '.' 0 add)"
     assert.equals 'Should be -26' '-26' "$(lists.reduce '10|1|35' '|' 20 subtract)"
     assert.equals 'Should be abcdef' 'abcdef' "$(lists.reduce 'a/b/c/d/e/f' '/' '' concat)"
+
+    # Any
+    lists.any '1,2,3' ',' /bin/true
+    assert.equals 'Should have exit code 0' '0' "${?}"
+    lists.any '1,2,3' ',' /bin/false
+    assert.equals 'Should have exit code 1' '1' "${?}"
+    lists.any '1,2,3' ',' test 4 -eq
+    assert.equals 'Should have exit code 1' '1' "${?}"
+    lists.any '1,2,3' ',' test 4 -ne
+    assert.equals 'Should have exit code 0' '0' "${?}"
+    lists.any '1,2,3' ',' test 2 -eq
+    assert.equals 'Should have exit code 0' '0' "${?}"
+
+    # Reverse
+    assert.equals 'Should be empty' '' "$(lists.reverse '')"
+    assert.equals 'Should be abcdef' 'abcdef' "$(lists.reverse 'abcdef')"
+    assert.equals 'Should be 3;2;1' '3;2;1' "$(lists.reverse '1;2;3' ';')"
+    assert.equals 'Should be 1;2;3' '1;2;3' "$(lists.reverse '3;2;1' ';')"
+    assert.equals 'Should be f/e/d/c/b/a' 'f/e/d/c/b/a' "$(lists.reverse 'a/b/c/d/e/f' '/')"
+
 else
     bvn.err "Could not load assert plugin"
     exit 1

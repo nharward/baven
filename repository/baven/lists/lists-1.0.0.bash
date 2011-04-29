@@ -190,9 +190,83 @@ function lists.reduce() {
 }
 readonly -f lists.reduce
 
-# TODO:
-#   lists.map
-#   lists.foreach
+# Executes the passed in command/function for each value in the list, passing
+# in each list value as the sole argument.
+# Arguments:
+#   1.   List value
+#   2.   The list separator
+#   3..* The program/function for each list value, plus any additional arguments
+#        to be passed for each call.  These additional arguments are passed
+#        *before* the list value
+# Exit codes
+#   0 if all executions exited with code 0
+#   1 if one or more executions did not exit with code 0
+function lists.foreach() {
+    assert.true "lists.foreach <list> <separator> <function/program and arguments...>" test "$#" -ge 3
+    test -z "${1}" && return 0
+    local list="${1}"
+    local separator="${2}"
+    shift 2
+    lists.to_array "${list}" lists_foreach_arr_tmp "${separator}"
+    let local rv=0
+    for list_value in "${lists_foreach_arr_tmp[@]}"
+    do
+        if ! "$@" "${list_value}"; then
+            let rv=1
+        fi
+    done
+    unset lists_foreach_arr_tmp
+    return "${rv}"
+}
+readonly -f lists.foreach
+
+# Like lists.foreach() except that it short-circuits as soon as the first
+# success is found.
+# Arguments:
+#   1.   List value
+#   2.   The list separator
+#   3..* The program/function for each list value, plus any additional arguments
+#        to be passed for each call.  These additional arguments are passed
+#        *before* the list value
+# Exit codes
+#   0 if any execution exited with code 0
+#   1 if no executions exited with code 0
+function lists.any() {
+    assert.true "lists.any <list> <separator> <function/program and arguments...>" test "$#" -ge 3
+    test -z "${1}" && return 0
+    local list="${1}"
+    local separator="${2}"
+    shift 2
+    lists.to_array "${list}" lists_foreach_arr_tmp "${separator}"
+    for list_value in "${lists_foreach_arr_tmp[@]}"
+    do
+        "$@" "${list_value}" && return 0
+    done
+    unset lists_foreach_arr_tmp
+    return 1
+}
+readonly -f lists.any
+
+# Reverses a list
+# Arguments:
+#   1. List value
+#   2. List separator, default is ':'
+# Emitted value to stdout:
+#   list with elements in reverse
+function lists.reverse() {
+    assert.true "lists.reverse <list> [separator]" test "$#" -eq 1 -o "$#" -eq 2
+    if test -z "${1}"; then echo "${1}"; return 0; fi
+    local list="${1}"
+    local separator="${2}"
+    function lists.reverse.reducer() {
+        local accumulator="${1}"
+        local list_value="${2}"
+        test -z "${accumulator}" && echo "${list_value}" && return 0
+        echo "${list_value}${separator}${accumulator}"
+    }
+    lists.reduce "${list}" "${separator}" "" lists.reverse.reducer
+}
+readonly -f lists.reverse
 
 $(bvn.load_plugin baven assert 1.0.0)
 assert.true "egrep is required to use the lists plugin, please check your path" test -x "$(which egrep)"

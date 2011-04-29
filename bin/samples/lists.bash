@@ -42,6 +42,9 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.equals 'Array[3] should be "c"' 'c' "${testarr[3]}"
     assert.equals 'Array[5] should be "d"' 'd' "${testarr[4]}"
 
+    lists.to_array "" testarr
+    assert.equals 'Array length should be 0' '0' "${#testarr[@]}"
+
     # Remove
     assert.equals 'Should be empty' '' "$(lists.remove '' '')"
     assert.equals 'Should be 10:9:8:7:6:4:3:2:1' '10:9:8:7:6:4:3:2:1' "$(lists.remove '10:9:8:7:6:5:4:3:2:1' '5')"
@@ -53,6 +56,14 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.equals 'Should be 1.2.3.4' '1.2.3.4' "$(lists.filter '1.2.3.4.5.6.7.8.9.10' '.' test '5' -gt)"
     assert.equals 'Should be empty' '' "$(lists.filter '1;2;3' ';' /bin/false)"
     assert.equals 'Should be 1;2;3' '1;2;3' "$(lists.filter '1;2;3' ';' /bin/true)"
+
+    # Map
+    function double()      { echo "$((${1}*2))"; }
+    function odd_or_even()      { test $((${1}%2)) -eq 0 && echo "even" && return 0; echo "odd"; }
+    function to_upper()      { echo "${1}" | tr '[a-z]' '[A-Z]' ; }
+    assert.equals 'Should be 20406' '20406' "$(lists.map '10203' '0' double)"
+    assert.equals 'Should be odd_even_odd_even' 'odd_even_odd_even' "$(lists.map '1_2_3_4' '_' odd_or_even)"
+    assert.equals 'Should be HELLO, WORLD!' 'HELLO, WORLD!' "$(lists.map 'hello, world!' ':' to_upper)"
 
     # Reduce
     function add()      { echo $((${1}+${2})); }

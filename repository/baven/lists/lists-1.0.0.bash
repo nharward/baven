@@ -138,6 +138,31 @@ function lists.filter() {
 }
 readonly -f lists.filter
 
+# The "map" part of map/reduce.  Transforms each value in the list by passing
+# it to the given function/program
+# Arguments:
+#   1.   List value
+#   2.   The list separator
+#   4..* The map program/function, plus any additional arguments to be
+#        passed for each call.  These additional arguments are passed *before*
+#        the list value
+function lists.map() {
+    assert.true "lists.map <list> <separator> <mapping function/program and arguments...>" test "$#" -ge 3
+    if test -z "${1}"; then echo "${1}"; return 0; fi
+    local list="${1}"
+    local separator="${2}"
+    shift 2
+    local map_command="$@"
+    function lists.map.reducer() {
+        local accumulator="${1}"
+        local list_value="${2}"
+        test -z "${accumulator}" && ${map_command} "${list_value}" && return 0
+        echo "${accumulator}${separator}$(${map_command} "${list_value}")"
+    }
+    lists.reduce "${list}" "${separator}" "" lists.map.reducer
+}
+readonly -f lists.map
+
 # The "reduce" part of map/reduce.  Reduces a list to a single value using the
 # passed in command/function.  The seed value is the starting value, it is the
 # default value if an empty list is passed.

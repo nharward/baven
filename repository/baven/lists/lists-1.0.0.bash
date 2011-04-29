@@ -44,6 +44,24 @@ function lists.append() {
 }
 readonly -f lists.append
 
+# Finds the length of a list
+# Arguments:
+#   1. List value
+#   2. The list separator, default is ':'
+# Emitted value to stdout:
+#   the length of the list
+function lists.length() {
+    assert.true "lists.length <list> [separator]" test "$#" -eq 1 -o "$#" -eq 2
+    if test -z "${1}"; then echo "0"; return 0; fi
+    local list="${1}"
+    local separator="${2:-:}"
+    lists.to_array "${list}" lists_length_tmp_arr "${separator}"
+    local length="${#lists_length_tmp_arr[@]}"
+    unset lists_length_tmp_arr
+    echo "${length}"
+}
+readonly -f lists.length
+
 # Prepends an argument to a list, but only if the list does not already
 # contain the value.  If you don't care about duplicate values, then a simple
 # assignment is probably a better choice than a function call.

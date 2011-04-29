@@ -15,6 +15,11 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.false "! list[1,2,3].contains(4)" lists.contains '1,2,3' '4' ','
     assert.false "list[hello again;there].contains(hello)" lists.contains 'hello again;there' 'hello' ';'
 
+    # Length
+    assert.equals "list[].length() == 0" '0' "$(lists.length '')"
+    assert.equals "list[1,2,3].length() == 3" '3' "$(lists.length '1,2,3' ',')"
+    assert.equals "list[a=b=c=d=e=f=g].length() == 7" '7' "$(lists.length 'a=b=c=d=e=f=g' '=')"
+
     # Append
     assert.equals "append to empty list" 'hello' "$(lists.append '' 'hello')"
     assert.equals "append to single-element list" 'hello$goodbye' "$(lists.append 'hello' 'goodbye' '$')"
@@ -101,7 +106,6 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.equals 'Should be 3;2;1' '3;2;1' "$(lists.reverse '1;2;3' ';')"
     assert.equals 'Should be 1;2;3' '1;2;3' "$(lists.reverse '3;2;1' ';')"
     assert.equals 'Should be f/e/d/c/b/a' 'f/e/d/c/b/a' "$(lists.reverse 'a/b/c/d/e/f' '/')"
-
 else
     bvn.err "Could not load assert plugin"
     exit 1

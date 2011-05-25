@@ -114,8 +114,12 @@ function bvn.private_fetch_and_cache_plugin() {
     local plugin_path=$(bvn.private_get_plugin_path "$@")
     local cached_path="${BAVEN_REPO}/${plugin_path}"
     if test -f "${cached_path}"; then
-        echo "${cached_path}"
-        return 0
+        if bvn.verify_plugin "$@"; then
+            echo "${cached_path}"
+            return 0
+        else
+            return 1
+        fi
     else
         if test \! -d "$(dirname ${cached_path})"; then
             mkdir -p "$(dirname ${cached_path})" || { bvn.err "Unable to create repository structure for plugin ${cached_path}" && return 1 ; }

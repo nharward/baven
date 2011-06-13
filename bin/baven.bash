@@ -73,7 +73,7 @@ readonly -f bvn.exec_or_fail
 function bvn.get_url_content() {
     local url="${1:?URL must be specified}"
     local fetch_cmd=""
-    test -z "${fetch_cmd}" && test -x "$(which "curl")"   && fetch_cmd="$(which "curl") -f -s"
+    test -z "${fetch_cmd}" && test -x "$(which "curl")"   && fetch_cmd="$(which "curl") -L -f -s"
     test -z "${fetch_cmd}" && test -x "$(which "wget")"   && fetch_cmd="$(which "wget") -q -O -"
     test -z "${fetch_cmd}" && test -x "$(which "w3m")"    && fetch_cmd="$(which "w3m") -dump_source"
     test -z "${fetch_cmd}" && test -x "$(which "links")"  && fetch_cmd="$(which "links") -source"

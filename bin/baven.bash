@@ -18,7 +18,7 @@ declare -a baven_plugins
 function bvn.init() {
     test -d "${BAVEN_LOCAL}" || bvn.exec_or_fail mkdir -p "${BAVEN_LOCAL}"
     test -f "${BAVEN_CONF}"  || { bvn.exec_or_fail touch "${BAVEN_CONF}"
-                                  bvn.exec_or_fail echo "declare -a baven_repositories=(\"https://github.com/nharward/baven/raw/master/repository\")" > "${BAVEN_CONF}"
+                                  bvn.exec_or_fail echo "declare -a baven_repositories=(\"https://raw.github.com/nharward/baven/master/repository\")" > "${BAVEN_CONF}"
                                 }
     test -d "${BAVEN_REPO}" || bvn.exec_or_fail mkdir -p "${BAVEN_REPO}"
     echo "eval source '${BAVEN_CONF}'"
@@ -106,8 +106,12 @@ function bvn.private_fetch_and_cache_plugin() {
     local plugin_path=$(bvn.private_get_plugin_path "$@")
     local cached_path="${BAVEN_REPO}/${plugin_path}"
     if test -f "${cached_path}"; then
-        echo "${cached_path}"
-        return 0
+        if bvn.verify_plugin "$@"; then
+            echo "${cached_path}"
+            return 0
+        else
+            return 1
+        fi
     else
         if test \! -d "$(dirname ${cached_path})"; then
             mkdir -p "$(dirname ${cached_path})" || { bvn.err "Unable to create repository structure for plugin ${cached_path}" && return 1 ; }

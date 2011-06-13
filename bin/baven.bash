@@ -21,14 +21,6 @@ function bvn.init() {
                                   bvn.exec_or_fail echo "declare -a baven_repositories=(\"https://github.com/nharward/baven/raw/master/repository\")" > "${BAVEN_CONF}"
                                 }
     test -d "${BAVEN_REPO}" || bvn.exec_or_fail mkdir -p "${BAVEN_REPO}"
-    for checksum_prog in md5sum sha1sum
-    do
-        if ! test -x $(which "${checksum_prog}"); then
-            echo "bvn.err Unable to find ${checksum_prog}, please check your PATH"
-            echo "exit 2"
-            return 1
-        fi
-    done
     echo "eval source '${BAVEN_CONF}'"
 }
 readonly -f bvn.init
@@ -73,7 +65,7 @@ readonly -f bvn.exec_or_fail
 function bvn.get_url_content() {
     local url="${1:?URL must be specified}"
     local fetch_cmd=""
-    test -z "${fetch_cmd}" && test -x "$(which "curl")"   && fetch_cmd="$(which "curl") -f -s"
+    test -z "${fetch_cmd}" && test -x "$(which "curl")"   && fetch_cmd="$(which "curl") -L -f -s"
     test -z "${fetch_cmd}" && test -x "$(which "wget")"   && fetch_cmd="$(which "wget") -q -O -"
     test -z "${fetch_cmd}" && test -x "$(which "w3m")"    && fetch_cmd="$(which "w3m") -dump_source"
     test -z "${fetch_cmd}" && test -x "$(which "links")"  && fetch_cmd="$(which "links") -source"
@@ -145,8 +137,38 @@ readonly -f bvn.private_fetch_and_cache_plugin
 #   non-zero otherwise
 function bvn.verify_plugin() {
     local plugin_path=$(bvn.private_get_plugin_path "$@")
+    local base_name=$(basename "${plugin_path}")
+    local checksum=""
     cd "${BAVEN_REPO}/$(dirname "${plugin_path}")"
-    md5sum --status -c $(basename "${plugin_path}").md5 2>/dev/null >/dev/null && sha1sum --status -c $(basename "${plugin_path}").sha1 2>/dev/null >/dev/null
+    if test -x "$(which md5sum)" -a "${checksum}" != "bad"; then
+        if md5sum --status -c "${base_name}.md5" 2>/dev/null >/dev/null; then
+            checksum="good"
+        else
+            checksum="bad"
+        fi
+    fi
+    if test -x "$(which sha1sum)" -a "${checksum}" != "bad"; then
+        if sha1sum --status -c "${base_name}.sha1" 2>/dev/null >/dev/null; then
+            checksum="good"
+        else
+            checksum="bad"
+        fi
+    fi
+    if test -x "$(which md5)" -a "${checksum}" != "bad"; then
+        if grep -q "$(md5 -q "${base_name}")" "${base_name}.md5"; then
+            checksum="good"
+        else
+            checksum="bad"
+        fi
+    fi
+    if test -x "$(which shasum)" -a "${checksum}" != "bad"; then
+        if shasum --status -c "${base_name}.sha1" 2>/dev/null >/dev/null; then
+            checksum="good"
+        else
+            checksum="bad"
+        fi
+    fi
+    test "${checksum}" = "good" || return 1
 }
 readonly -f bvn.verify_plugin
 

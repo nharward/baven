@@ -57,9 +57,9 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.equals 'Should be Hello, world!' 'Hello, world!' "$(lists.remove 'Hello,goodbye, world!' 'goodbye' ',')"
 
     # Foreach
-    lists.foreach '1,2,3' ',' /bin/true
+    lists.foreach '1,2,3' ',' true
     assert.equals 'Should have exit code 0' '0' "${?}"
-    lists.foreach '1,2,3' ',' /bin/false
+    lists.foreach '1,2,3' ',' false
     assert.equals 'Should have exit code 1' '1' "${?}"
     lists.foreach '1,2,3' ',' test 4 -ne
     assert.equals 'Should have exit code 0' '0' "${?}"
@@ -69,8 +69,8 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     # Filter
     assert.equals 'Should be 2' '2' "$(lists.filter '1.2.3' '.' test '2' -eq)"
     assert.equals 'Should be 1.2.3.4' '1.2.3.4' "$(lists.filter '1.2.3.4.5.6.7.8.9.10' '.' test '5' -gt)"
-    assert.equals 'Should be empty' '' "$(lists.filter '1;2;3' ';' /bin/false)"
-    assert.equals 'Should be 1;2;3' '1;2;3' "$(lists.filter '1;2;3' ';' /bin/true)"
+    assert.equals 'Should be empty' '' "$(lists.filter '1;2;3' ';' false)"
+    assert.equals 'Should be 1;2;3' '1;2;3' "$(lists.filter '1;2;3' ';' true)"
 
     # Map
     function double()      { echo "$((${1}*2))"; }
@@ -89,9 +89,9 @@ if bvn.is_plugin_loaded baven lists 1.0.0 && bvn.is_plugin_loaded baven lists 1.
     assert.equals 'Should be abcdef' 'abcdef' "$(lists.reduce 'a/b/c/d/e/f' '/' '' concat)"
 
     # Any
-    lists.any '1,2,3' ',' /bin/true
+    lists.any '1,2,3' ',' true
     assert.equals 'Should have exit code 0' '0' "${?}"
-    lists.any '1,2,3' ',' /bin/false
+    lists.any '1,2,3' ',' false
     assert.equals 'Should have exit code 1' '1' "${?}"
     lists.any '1,2,3' ',' test 4 -eq
     assert.equals 'Should have exit code 1' '1' "${?}"

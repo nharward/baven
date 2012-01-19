@@ -56,7 +56,7 @@ readonly -f bvn.exec_or_fail
 # Finds commands that are more script friendly, ignoring aliases that may
 # be non-standard
 function bvn.which() {
-    type -fP "$@"
+    type -fP "$@" 2>/dev/null
 }
 readonly -f bvn.which
 
